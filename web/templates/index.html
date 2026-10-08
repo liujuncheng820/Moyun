@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中文VibeWriting - DeepSeek Reasoner 交互式故事生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+            background: #0d1117;
+        }
+        
+        /* 左侧历史记录面板 */
+        .history-panel {
+            width: 280px;
+            background: #161b22;
+            border-right: 1px solid #30363d;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 风格控制区域 */
+        .style-control-panel {
+            padding: 16px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: #0d1117;
+        }
+
+        .style-control-title {
+            font-size: 12px;
+            color: #8b949e;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .style-toggle-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .history-header {
+            padding: 16px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #161b22;
+        }
+
+        .side-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .side-toggle:hover {
+            border-color: #8b949e;
+        }
+
+        .side-toggle-label {
+            font-size: 13px;
+            color: #e6edf3;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .side-toggle-icon {
+            color: #8b949e;
+        }
+        
+        .history-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #f0f6fc;
+        }
+        
+        .new-chat-btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .new-chat-btn:hover {
+            background: #2ea043;
+        }
+        
+        /* 模态对话框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-content {
+            background-color: #21262d;
+            margin: 15% auto;
+            padding: 24px;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f0f6fc;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #8b949e;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-close:hover {
+            color: #f0f6fc;
+        }
+        
+        .modal-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            background: #0d1117;
+            color: #e6edf3;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            margin-bottom: 20px;
+        }
+        
+        .modal-textarea:focus {
+            outline: none;
+            border-color: #1f6feb;
+            box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.1);
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        .modal-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .modal-btn-primary {
+            background: #238636;
+            color: white;
+        }
+        
+        .modal-btn-primary:hover {
+            background: #2ea043;
+        }
+        
+        .modal-btn-secondary {
+            background: #21262d;
+            color: #f0f6fc;
+            border: 1px solid #30363d;
+        }
+        
+        .modal-btn-secondary:hover {
+            background: #30363d;
+        }
+        
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        
+        .history-item {
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            group: hover;
+        }
+        
+        .history-item:hover {
+            background: #21262d;
+        }
+        
+        .history-item.active {
+            background: #1f6feb;
+        }
+        
+        .history-text {
+            font-size: 13px;
+            color: #e6edf3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }
+        
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #f85149;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .history-item:hover .delete-btn {
+            opacity: 1;
+        }
+        
+        .delete-btn:hover {
+            background: #f851491a;
+        }
+        
+        /* 中间内容区域 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #0d1117;
+        }
+        
+        .content-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        
+        .content-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f0f6fc;
+        }
+        
+        .content-body {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+        
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+        }
+        
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #f0f6fc;
+            margin-bottom: 16px;
+        }
+        
+        .welcome-subtitle {
+            font-size: 16px;
+            color: #8b949e;
+            margin-bottom: 32px;
+        }
+        
+        .story-result {
+            display: none;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+        
+        .story-result.show {
+            display: block;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .result-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f0f6fc;
+        }
+        
+        .result-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #1f6feb;
+            color: white;
+        }
+        
+        .result-content {
+            line-height: 1.6;
+            color: #e6edf3;
+            white-space: pre-wrap;
+        }
+        
+        .step-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #30363d;
+        }
+        
+        .step-btn {
+            padding: 8px 16px;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            background: #21262d;
+            color: #e6edf3;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .step-btn:hover {
+            background: #30363d;
+            border-color: #8b949e;
+        }
+        
+        .step-btn.primary {
+            background: #238636;
+            border-color: #238636;
+            color: white;
+        }
+        
+        .step-btn.primary:hover {
+            background: #2ea043;
+        }
+        
+        .step-btn.danger {
+            background: #da3633;
+            border-color: #da3633;
+            color: white;
+        }
+        
+        .step-btn.danger:hover {
+            background: #f85149;
+        }
+        
+        /* 右侧聊天面板 */
+        .chat-panel {
+            width: 400px;
+            background: #161b22;
+            border-left: 1px solid #30363d;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            padding: 16px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #161b22;
+        }
+        
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .llm-selector {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: #0d1117;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+        }
+
+        .llm-select {
+            background: transparent;
+            color: #e6edf3;
+            border: none;
+            padding: 6px 10px;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        
+        .llm-select:hover {
+            background: #21262d;
+        }
+
+        .llm-select:focus {
+            outline: none;
+            background: #21262d;
+            color: #58a6ff;
+        }
+        
+        .llm-select option {
+            background: #161b22;
+            color: #e6edf3;
+        }
+
+        .hongloumeng-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            transition: all 0.2s;
+        }
+        
+        .hongloumeng-toggle:hover {
+            background: #21262d;
+        }
+        
+        .hongloumeng-label {
+            font-size: 12px;
+            color: #8b949e;
+            user-select: none;
+        }
+        
+        .hongloumeng-switch {
+            position: relative;
+            width: 36px;
+            height: 20px;
+            background: #30363d;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+        
+        .hongloumeng-switch.active {
+            background: #238636;
+        }
+        
+        .hongloumeng-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        
+        .hongloumeng-switch.active::after {
+            transform: translateX(16px);
+        }
+
+        /* 科幻文风开关 */
+        .scifi-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            transition: all 0.2s;
+        }
+        
+        .scifi-toggle:hover {
+            background: #21262d;
+        }
+        
+        .scifi-label {
+            font-size: 12px;
+            color: #8b949e;
+            user-select: none;
+        }
+        
+        .scifi-switch {
+            position: relative;
+            width: 36px;
+            height: 20px;
+            background: #30363d;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+        
+        .scifi-switch.active {
+            background: #1f6feb; /* 使用蓝色区分 */
+        }
+        
+        .scifi-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        
+        .scifi-switch.active::after {
+            transform: translateX(16px);
+        }
+
+        /* 言情文风开关 - 粉色 */
+        .romance-switch {
+            position: relative;
+            width: 36px;
+            height: 20px;
+            background: #30363d;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+        
+        .romance-switch.active {
+            background: #d2a8ff; /* 粉色 */
+        }
+        
+        .romance-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        
+        .romance-switch.active::after {
+            transform: translateX(16px);
+        }
+
+        /* 悬疑文风开关 - 紫色 */
+        .mystery-switch {
+            position: relative;
+            width: 36px;
+            height: 20px;
+            background: #30363d;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+        
+        .mystery-switch.active {
+            background: #8957e5; /* 紫色 */
+        }
+        
+        .mystery-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        
+        .mystery-switch.active::after {
+            transform: translateX(16px);
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .message {
+            margin-bottom: 16px;
+        }
+        
+        .message-user {
+            text-align: right;
+        }
+        
+        .message-content {
+            display: inline-block;
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .message-user .message-content {
+            background: #1f6feb;
+            color: white;
+        }
+        
+        .message-assistant .message-content {
+            background: #21262d;
+            color: #e6edf3;
+            border: 1px solid #30363d;
+        }
+        
+        .chat-input-area {
+            padding: 16px;
+            border-top: 1px solid #30363d;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+        
+        .chat-input {
+            flex: 1;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px;
+            color: #e6edf3;
+            font-size: 14px;
+            resize: none;
+            min-height: 44px;
+            max-height: 120px;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #1f6feb;
+        }
+        
+        .send-btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .send-btn:hover:not(:disabled) {
+            background: #2ea043;
+        }
+        
+        .send-btn:disabled {
+            background: #30363d;
+            cursor: not-allowed;
+        }
+        
+        .progress-indicator {
+            display: none;
+            padding: 12px 16px;
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #8b949e;
+        }
+        
+        .progress-indicator.show {
+            display: block;
+        }
+        
+        .generation-controls {
+            display: none;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .generation-controls.show {
+            display: flex;
+        }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #161b22;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .history-panel {
+                width: 240px;
+            }
+            .chat-panel {
+                width: 320px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .history-panel {
+                display: none;
+            }
+            .chat-panel {
+                width: 100%;
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 左侧历史记录面板 -->
+        <div class="history-panel">
+            <div class="history-header">
+                <span class="history-title">历史记录</span>
+                <button class="new-chat-btn" onclick="startNewChat()">新建对话</button>
+            </div>
+            
+            <!-- 风格控制区 -->
+            <div class="style-control-panel">
+                <div class="style-control-title">风格控制</div>
+                <div class="style-toggle-container">
+                    <!-- 红楼梦开关 -->
+                    <div class="side-toggle" onclick="toggleHongloumeng()" id="side-hongloumeng-btn">
+                        <div class="side-toggle-label">
+                            <span class="side-toggle-icon">🏮</span>
+                            <span>红楼梦文风</span>
+                        </div>
+                        <div class="hongloumeng-switch" id="hongloumeng-switch"></div>
+                    </div>
+                    
+                    <!-- 科幻开关 -->
+                    <div class="side-toggle" onclick="toggleSciFi()" id="side-scifi-btn">
+                        <div class="side-toggle-label">
+                            <span class="side-toggle-icon">🚀</span>
+                            <span>科幻/赛博朋克</span>
+                        </div>
+                        <div class="scifi-switch" id="scifi-switch"></div>
+                    </div>
+
+                    <!-- 言情开关 -->
+                    <div class="side-toggle" onclick="toggleRomance()" id="side-romance-btn">
+                        <div class="side-toggle-label">
+                            <span class="side-toggle-icon">💕</span>
+                            <span>言情/纯爱文风</span>
+                        </div>
+                        <div class="romance-switch" id="romance-switch"></div>
+                    </div>
+
+                    <!-- 悬疑开关 -->
+                    <div class="side-toggle" onclick="toggleMystery()" id="side-mystery-btn">
+                        <div class="side-toggle-label">
+                            <span class="side-toggle-icon">🔍</span>
+                            <span>悬疑/硬汉侦探</span>
+                        </div>
+                        <div class="mystery-switch" id="mystery-switch"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-list" id="history-list">
+                <!-- 历史记录将通过 JS 动态添加 -->
+            </div>
+        </div>
+        
+        <!-- 中间内容区域 -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="content-title">中文VibeWriting - 交互式故事生成器</div>
+            </div>
+            <div class="content-body" id="content-body">
+                <div class="welcome-screen" id="welcome-screen">
+                    <div class="welcome-title">🌟 智能小说生成器</div>
+                    <div class="welcome-subtitle">选择模型后输入主题，开始创作您的专属故事</div>
+                </div>
+                
+                <div class="progress-indicator" id="progress-indicator">
+                    <span id="progress-text">准备中...</span>
+                    <div class="generation-controls" id="generation-controls">
+                        <button class="step-btn danger" onclick="pauseGeneration()">⏸️ 暂停</button>
+                        <button class="step-btn" onclick="skipCurrentStep()">⏭️ 跳过</button>
+                    </div>
+                </div>
+                
+                <div id="story-results">
+                    <!-- 故事生成结果将在这里显示 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 右侧聊天面板 -->
+        <div class="chat-panel">
+            <div class="chat-header">
+                <div class="chat-header-left">
+                    <div class="llm-selector">
+                        <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" style="margin-left: 4px; color: #8b949e;">
+                            <path d="M12 5.5a4.49 4.49 0 0 1-2.997 4.244L9.01 11h-2l.006-1.256A4.49 4.49 0 0 1 4 5.5C4 3.015 6.238 1 9 1h.013a.75.75 0 0 1 0 1.5H9a2.5 2.5 0 1 0 0 5c1.38 0 2.5-1.12 2.5-2.5a.75.75 0 0 1 1.5 0ZM7.5 13.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"></path>
+                        </svg>
+                        <select class="llm-select" id="llm-backend" title="选择大语言模型厂商" onchange="populateLlmModels(this.value, ''); toggleVolcanoEndpointInput(this.value); applyLlmSelection(true);">
+                            <option value="deepseek">DeepSeek</option>
+                            <option value="qwen">千问(Qwen)</option>
+                            <option value="volcano">火山引擎(Doubao)</option>
+                            <option value="openai">OpenAI (ChatGPT)</option>
+                        </select>
+                        <div style="width: 1px; height: 16px; background: #30363d; margin: 0 4px;"></div>
+                        <select class="llm-select" id="llm-model" title="选择具体模型" onchange="applyLlmSelection(true);"></select>
+                        <input type="text" id="volcano-endpoint-id" class="llm-select" style="display:none; width: 200px; background: #161b22; border: 1px solid #30363d;" placeholder="输入 Endpoint ID (ep-...)" onchange="applyLlmSelection(true);">
+                    </div>
+                </div>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message message-assistant">
+                    <div class="message-content">
+                        您好！我是您的智能写作助手。请输入您想要创作的故事主题，我将为您生成精彩的小说内容。
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <div class="input-container">
+                    <textarea 
+                        class="chat-input" 
+                        id="chat-input" 
+                        placeholder="输入故事主题或与我对话..."
+                        rows="1"
+                    ></textarea>
+                    <button class="send-btn" id="send-btn" onclick="sendMessage()">发送</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 模态对话框 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">编辑内容</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <textarea id="modalTextarea" class="modal-textarea" placeholder="请输入内容..."></textarea>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-secondary" onclick="closeModal()">取消</button>
+                <button class="modal-btn modal-btn-primary" onclick="confirmModal()">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        // Socket.IO 连接
+        const socket = io();
+        
+        // 全局变量
+        let currentSession = null;
+        let storySteps = [];
+        let currentStepIndex = 0;
+        let isGenerating = false;
+        let isHongloumengEnabled = false;  // 红楼梦文风开关状态
+        let isSciFiEnabled = false;        // 科幻文风开关状态
+        let isRomanceEnabled = false;      // 言情文风开关状态
+        let isMysteryEnabled = false;      // 悬疑文风开关状态
+        let selectedLlmBackend = 'deepseek';
+        let selectedLlmModel = 'deepseek-reasoner';
+
+        const LLM_MODELS = {
+            deepseek: [
+                { value: 'deepseek-reasoner', label: 'deepseek-reasoner' }
+            ],
+            qwen: [
+                { value: 'qwen-turbo', label: 'qwen-turbo' },
+                { value: 'qwen-plus', label: 'qwen-plus' },
+                { value: 'qwen-max', label: 'qwen-max' }
+            ],
+            volcano: [
+                { value: 'ep-20240604123456-abcde', label: '示例 Endpoint ID (请替换)' },
+                { value: 'doubao-pro-4k', label: 'doubao-pro-4k (需映射)' },
+                { value: 'doubao-lite-4k', label: 'doubao-lite-4k (需映射)' }
+            ],
+            openai: [
+                { value: 'gpt-4o', label: 'GPT-4o' },
+                { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
+                { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' }
+            ]
+        };
+
+        function toggleVolcanoEndpointInput(backend) {
+            const endpointInput = document.getElementById('volcano-endpoint-id');
+            const modelSelect = document.getElementById('llm-model');
+            
+            if (backend === 'volcano') {
+                endpointInput.style.display = 'block';
+                modelSelect.style.display = 'none'; // 隐藏普通模型选择
+            } else {
+                endpointInput.style.display = 'none';
+                modelSelect.style.display = 'block';
+            }
+        }
+
+        function populateLlmModels(backend, preferredModel) {
+            const modelSelect = document.getElementById('llm-model');
+            modelSelect.innerHTML = '';
+            
+            // 如果是火山引擎，我们使用输入框而不是下拉框，但为了兼容性，下拉框也保留一个默认值
+            if (backend === 'volcano') {
+                const opt = document.createElement('option');
+                opt.value = 'custom-endpoint';
+                opt.textContent = '使用自定义 Endpoint ID';
+                opt.selected = true;
+                modelSelect.appendChild(opt);
+                return; 
+            }
+
+            const models = LLM_MODELS[backend] || [];
+            let resolved = preferredModel;
+            if (!models.some(m => m.value === resolved)) {
+                resolved = models.length ? models[0].value : '';
+            }
+            
+            for (const m of models) {
+                const opt = document.createElement('option');
+                opt.value = m.value;
+                opt.textContent = m.label;
+                if (m.value === resolved) opt.selected = true;
+                modelSelect.appendChild(opt);
+            }
+            
+            // 为火山引擎添加一个提示性的选项
+            if (backend === 'volcano') {
+                const opt = document.createElement('option');
+                opt.value = 'custom';
+                opt.textContent = '-- 请输入 Endpoint ID --';
+                opt.disabled = true;
+                // modelSelect.insertBefore(opt, modelSelect.firstChild);
+            }
+            
+            selectedLlmModel = resolved;
+        }
+
+        function applyLlmSelection(emitToServer = false) {
+            const backendSelect = document.getElementById('llm-backend');
+            const modelSelect = document.getElementById('llm-model');
+            const endpointInput = document.getElementById('volcano-endpoint-id');
+            
+            selectedLlmBackend = backendSelect.value;
+            
+            if (selectedLlmBackend === 'volcano') {
+                selectedLlmModel = endpointInput.value.trim();
+            } else {
+                selectedLlmModel = modelSelect.value;
+            }
+            
+            if (emitToServer && currentSession) {
+                socket.emit('set_llm', { llm_backend: selectedLlmBackend, llm_model: selectedLlmModel });
+            }
+        }
+        
+        // 切换任意风格的通用函数
+        function toggleStyle(style) {
+            // 定义所有风格的状态和元素
+            const styles = {
+                'hongloumeng': { enabled: isHongloumengEnabled, varName: 'isHongloumengEnabled', btnId: 'side-hongloumeng-btn', switchId: 'hongloumeng-switch', color: '#238636', name: '红楼梦文风' },
+                'scifi': { enabled: isSciFiEnabled, varName: 'isSciFiEnabled', btnId: 'side-scifi-btn', switchId: 'scifi-switch', color: '#1f6feb', name: '科幻/赛博朋克' },
+                'romance': { enabled: isRomanceEnabled, varName: 'isRomanceEnabled', btnId: 'side-romance-btn', switchId: 'romance-switch', color: '#d2a8ff', name: '言情/纯爱' },
+                'mystery': { enabled: isMysteryEnabled, varName: 'isMysteryEnabled', btnId: 'side-mystery-btn', switchId: 'mystery-switch', color: '#8957e5', name: '悬疑/硬汉' }
+            };
+
+            // 获取目标风格的新状态（取反）
+            const targetEnabled = !styles[style].enabled;
+            
+            // 更新所有风格状态
+            for (const key in styles) {
+                const s = styles[key];
+                const sideBtn = document.getElementById(s.btnId);
+                const switchEl = document.getElementById(s.switchId);
+                
+                if (key === style) {
+                    // 更新目标风格
+                    if (key === 'hongloumeng') isHongloumengEnabled = targetEnabled;
+                    if (key === 'scifi') isSciFiEnabled = targetEnabled;
+                    if (key === 'romance') isRomanceEnabled = targetEnabled;
+                    if (key === 'mystery') isMysteryEnabled = targetEnabled;
+                    
+                    if (targetEnabled) {
+                        if(sideBtn) sideBtn.style.borderColor = s.color;
+                        if(switchEl) switchEl.classList.add('active');
+                        showMessage('assistant', `✨ 已开启${s.name}模式。`);
+                    } else {
+                        if(sideBtn) sideBtn.style.borderColor = '#30363d';
+                        if(switchEl) switchEl.classList.remove('active');
+                        // 只有当所有都关闭时才提示
+                        if (!isHongloumengEnabled && !isSciFiEnabled && !isRomanceEnabled && !isMysteryEnabled) {
+                            showMessage('assistant', `📝 已关闭${s.name}模式，恢复常规生成风格。`);
+                        }
+                    }
+                    
+                    // 发送 socket 事件
+                    socket.emit(`${key}_toggle`, { enabled: targetEnabled });
+                    
+                } else {
+                    // 如果开启了新风格，关闭其他所有风格
+                    if (targetEnabled && s.enabled) {
+                        if (key === 'hongloumeng') isHongloumengEnabled = false;
+                        if (key === 'scifi') isSciFiEnabled = false;
+                        if (key === 'romance') isRomanceEnabled = false;
+                        if (key === 'mystery') isMysteryEnabled = false;
+                        
+                        if(sideBtn) sideBtn.style.borderColor = '#30363d';
+                        if(switchEl) switchEl.classList.remove('active');
+                        
+                        // 发送 socket 事件关闭其他风格
+                        socket.emit(`${key}_toggle`, { enabled: false });
+                    }
+                }
+            }
+        }
+
+        function toggleHongloumeng() { toggleStyle('hongloumeng'); }
+        function toggleSciFi() { toggleStyle('scifi'); }
+        function toggleRomance() { toggleStyle('romance'); }
+        function toggleMystery() { toggleStyle('mystery'); }
+        
+        // 连接状态处理
+        socket.on('connect', function() {
+            console.log('已连接到服务器');
+        });
+        
+        socket.on('disconnect', function() {
+            console.log('与服务器断开连接');
+        });
+        
+        // 接收故事步骤
+        socket.on('story_steps', function(data) {
+            storySteps = data.steps;
+            if (data.llm_backend && data.llm_model) {
+                showMessage('assistant', `开始生成故事：${data.topic || '未知主题'}（模型：${data.llm_backend}/${data.llm_model}）`);
+            } else {
+                showMessage('assistant', `开始生成故事：${data.topic || '未知主题'}`);
+            }
+            hideWelcomeScreen();
+            showProgress('正在初始化故事生成...');
+        });
+        
+        // 接收下一步骤
+        socket.on('next_step', function(data) {
+            showMessage('assistant', `步骤 ${data.step_index + 1}/${data.total_steps}: ${data.step.name}`);
+            showStepControls(data.step, data.step_index, data.total_steps);
+        });
+        
+        // 步骤生成中
+        socket.on('step_generating', function(data) {
+            showProgress(data.message);
+            showGenerationControls();
+        });
+        
+        // 步骤暂停
+        socket.on('step_paused', function(data) {
+            showProgress(data.message, 'warning');
+            hideGenerationControls();
+        });
+        
+        // 生成暂停
+        socket.on('generation_paused', function(data) {
+            showProgress(data.message, 'warning');
+        });
+        
+        // 步骤结果
+        socket.on('step_result', function(data) {
+            hideProgress();
+            hideGenerationControls();
+            showStepResult(data);
+        });
+        
+        // 步骤修改
+        socket.on('step_modified', function(data) {
+            updateStepResult(data.step_id, data.content);
+        });
+        
+        // 故事完成
+        socket.on('story_complete', function(data) {
+            hideProgress();
+            showMessage('assistant', data.message);
+            if (data.novel_content) {
+                showFinalNovel(data.novel_content);
+            }
+        });
+        
+        // 错误消息
+        socket.on('error_message', function(data) {
+            hideProgress();
+            showMessage('assistant', `错误：${data.error}`);
+        });
+        
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            showMessage('user', message);
+            input.value = '';
+            
+            // 如果是第一条消息，开始故事生成
+            if (!currentSession) {
+                startStoryGeneration(message);
+            } else {
+                // 发送普通消息
+                socket.emit('chat_message', { message: message });
+            }
+        }
+        
+        // 预设故事生成
+        function startPresetStory(topic) {
+            console.log('开始预设故事生成:', topic);
+            showMessage('user', topic);
+            startStoryGeneration(topic);
+        }
+        
+        // 开始故事生成
+        function startStoryGeneration(topic) {
+            currentSession = { topic: topic };
+            
+            // 确保获取最新的选择
+            applyLlmSelection(false);
+            
+            socket.emit('start_story_generation', { 
+                topic: topic,
+                llm_backend: selectedLlmBackend,
+                llm_model: selectedLlmModel
+            });
+        }
+
+        (function initLlmSelector() {
+            const backendSelect = document.getElementById('llm-backend');
+            const modelSelect = document.getElementById('llm-model');
+            populateLlmModels(selectedLlmBackend, selectedLlmModel);
+            backendSelect.value = selectedLlmBackend;
+
+            backendSelect.addEventListener('change', () => {
+                selectedLlmBackend = backendSelect.value;
+                populateLlmModels(selectedLlmBackend, selectedLlmModel);
+                applyLlmSelection(true);
+            });
+
+            modelSelect.addEventListener('change', () => {
+                applyLlmSelection(true);
+            });
+        })();
+        
+        // 显示消息
+        function showMessage(sender, content) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${sender}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = content;
+            
+            messageDiv.appendChild(contentDiv);
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // 显示进度
+        function showProgress(message, type = 'info') {
+            const indicator = document.getElementById('progress-indicator');
+            const text = document.getElementById('progress-text');
+            
+            text.textContent = message;
+            indicator.className = `progress-indicator show ${type}`;
+        }
+        
+        // 隐藏进度
+        function hideProgress() {
+            const indicator = document.getElementById('progress-indicator');
+            indicator.className = 'progress-indicator';
+        }
+        
+        // 显示生成控制按钮
+        function showGenerationControls() {
+            const controls = document.getElementById('generation-controls');
+            controls.className = 'generation-controls show';
+        }
+        
+        // 隐藏生成控制按钮
+        function hideGenerationControls() {
+            const controls = document.getElementById('generation-controls');
+            controls.className = 'generation-controls';
+        }
+        
+        // 暂停生成
+        function pauseGeneration() {
+            socket.emit('pause_generation', {});
+        }
+        
+        // 跳过当前步骤
+        function skipCurrentStep() {
+            if (confirm('确定要跳过当前正在生成的步骤吗？')) {
+                socket.emit('skip_current_step', {});
+            }
+        }
+        
+        // 显示步骤结果
+        function showStepResult(data) {
+            const resultsContainer = document.getElementById('story-results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'story-result show';
+            resultDiv.id = `result-${data.step_id}`;
+            
+            const statusText = data.skipped ? '已跳过' : 
+                              data.custom ? '自定义' : 
+                              data.regenerated ? '重新生成' : 'AI生成';
+            
+            resultDiv.innerHTML = `
+                <div class="result-header">
+                    <div class="result-title">${getStepName(data.step_id)}</div>
+                    <div class="result-status">${statusText}</div>
+                </div>
+                <div class="result-content" id="content-${data.step_id}">${data.result}</div>
+                <div class="step-controls">
+                    <button class="step-btn primary" onclick="regenerateStep('${data.step_id}')">🔄 重新生成</button>
+                    <button class="step-btn" onclick="editStep('${data.step_id}')">✏️ 编辑</button>
+                </div>
+            `;
+            
+            resultsContainer.appendChild(resultDiv);
+            resultsContainer.scrollTop = resultsContainer.scrollHeight;
+        }
+        
+        // 更新步骤结果
+        function updateStepResult(stepId, content) {
+            const contentDiv = document.getElementById(`content-${stepId}`);
+            if (contentDiv) {
+                contentDiv.textContent = content;
+            }
+        }
+        
+        // 显示最终小说
+        function showFinalNovel(content) {
+            const resultsContainer = document.getElementById('story-results');
+            const novelDiv = document.createElement('div');
+            novelDiv.className = 'story-result show';
+            novelDiv.innerHTML = `
+                <div class="result-header">
+                    <div class="result-title">📖 完整小说</div>
+                    <div class="result-status">最终版本</div>
+                </div>
+                <div class="result-content">${content}</div>
+                <div class="step-controls">
+                    <button class="step-btn primary" onclick="exportNovel()">📥 导出小说</button>
+                    <button class="step-btn" onclick="shareNovel()">🔗 分享</button>
+                </div>
+            `;
+            
+            resultsContainer.appendChild(novelDiv);
+            resultsContainer.scrollTop = resultsContainer.scrollHeight;
+        }
+        
+        // 隐藏欢迎屏幕
+        function hideWelcomeScreen() {
+            document.getElementById('welcome-screen').style.display = 'none';
+        }
+        
+        // 获取步骤名称
+        function getStepName(stepId) {
+            const step = storySteps.find(s => s.id === stepId);
+            return step ? step.name : '未知步骤';
+        }
+        
+        // 重新生成步骤
+        function regenerateStep(stepId) {
+            socket.emit('regenerate_step', { step_id: stepId });
+            showProgress(`正在重新生成：${getStepName(stepId)}`);
+        }
+        
+        // 编辑步骤
+        function editStep(stepId) {
+            const contentDiv = document.getElementById(`content-${stepId}`);
+            const currentContent = contentDiv.textContent;
+            
+            showModal('编辑内容', currentContent, function(newContent) {
+                if (newContent && newContent !== currentContent) {
+                    socket.emit('modify_step', { 
+                        step_id: stepId, 
+                        content: newContent 
+                    });
+                }
+            });
+        }
+        
+        // 模态对话框相关函数
+        let modalCallback = null;
+        
+        function showModal(title, initialContent, callback) {
+            const modal = document.getElementById('editModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalTextarea = document.getElementById('modalTextarea');
+            
+            modalTitle.textContent = title;
+            modalTextarea.value = initialContent;
+            modalCallback = callback;
+            
+            modal.style.display = 'block';
+            modalTextarea.focus();
+            modalTextarea.select();
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('editModal');
+            modal.style.display = 'none';
+            modalCallback = null;
+        }
+        
+        function confirmModal() {
+            const modalTextarea = document.getElementById('modalTextarea');
+            const content = modalTextarea.value;
+            
+            if (modalCallback) {
+                modalCallback(content);
+            }
+            
+            closeModal();
+        }
+        
+        // 点击模态对话框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // 模态对话框中按ESC键关闭
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modal = document.getElementById('editModal');
+                if (modal.style.display === 'block') {
+                    closeModal();
+                }
+            }
+        });
+        
+        // 模态对话框中按Ctrl+Enter确认
+        document.getElementById('modalTextarea').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && event.ctrlKey) {
+                event.preventDefault();
+                confirmModal();
+            }
+        });
+
+        // 新建对话
+        function startNewChat() {
+            currentSession = null;
+            storySteps = [];
+            currentStepIndex = 0;
+            
+            // 清空内容
+            document.getElementById('story-results').innerHTML = '';
+            document.getElementById('chat-messages').innerHTML = `
+                <div class="message message-assistant">
+                    <div class="message-content">
+                        您好！我是您的智能写作助手。请输入您想要创作的故事主题，我将为您生成精彩的小说内容。
+                    </div>
+                </div>
+            `;
+            
+            // 显示欢迎屏幕
+            document.getElementById('welcome-screen').style.display = 'flex';
+            hideProgress();
+        }
+        
+        // 显示步骤控制按钮
+        function showStepControls(step, stepIndex, totalSteps) {
+            const chatMessages = document.getElementById('chat-messages');
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'step-controls-container';
+            controlsDiv.id = `step-controls-${step.id}`;
+            
+            controlsDiv.innerHTML = `
+                <div class="step-info">
+                    <h4>${step.name}</h4>
+                    <p>${step.description || '点击下方按钮来控制此步骤的执行'}</p>
+                </div>
+                <div class="step-action-buttons">
+                    <button class="step-btn primary" onclick="executeCurrentStep('${step.id}')">🚀 生成此步骤</button>
+                    <button class="step-btn" onclick="skipCurrentStep('${step.id}')">⏭️ 跳过此步骤</button>
+                    <button class="step-btn" onclick="customizeStep('${step.id}')">✏️ 自定义内容</button>
+                </div>
+            `;
+            
+            chatMessages.appendChild(controlsDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // 执行当前步骤
+        function executeCurrentStep(stepId) {
+            // 隐藏控制按钮
+            const controlsDiv = document.getElementById(`step-controls-${stepId}`);
+            if (controlsDiv) {
+                controlsDiv.style.display = 'none';
+            }
+            
+            socket.emit('execute_step', { step_id: stepId });
+        }
+        
+        // 跳过当前步骤
+        function skipCurrentStep(stepId) {
+            if (confirm('确定要跳过这个步骤吗？')) {
+                // 隐藏控制按钮
+                const controlsDiv = document.getElementById(`step-controls-${stepId}`);
+                if (controlsDiv) {
+                    controlsDiv.style.display = 'none';
+                }
+                
+                socket.emit('skip_step', { step_id: stepId });
+            }
+        }
+        
+        // 自定义步骤内容
+        function customizeStep(stepId) {
+            showModal('请输入自定义内容', '', function(customContent) {
+                if (customContent && customContent.trim()) {
+                    // 隐藏控制按钮
+                    const controlsDiv = document.getElementById(`step-controls-${stepId}`);
+                    if (controlsDiv) {
+                        controlsDiv.style.display = 'none';
+                    }
+                    
+                    socket.emit('custom_step', { 
+                        step_id: stepId, 
+                        content: customContent.trim() 
+                    });
+                }
+            });
+        }
+        
+        // 导出小说
+        function exportNovel() {
+            // TODO: 实现导出功能
+            alert('导出功能开发中...');
+        }
+        
+        // 分享小说
+        function shareNovel() {
+            // TODO: 实现分享功能
+            alert('分享功能开发中...');
+        }
+        
+        // 输入框回车发送
+        document.getElementById('chat-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // 自动调整输入框高度
+        document.getElementById('chat-input').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+    </script>
+</body>
+</html>

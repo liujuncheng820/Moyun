@@ -1,0 +1,772 @@
+/* 全局样式重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* 主容器布局 */
+.app-container {
+    display: flex;
+    height: 100vh;
+    background: #f8fafc;
+}
+
+/* 左侧边栏 */
+.sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #4a5568;
+}
+
+.sidebar-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-header i {
+    color: #4299e1;
+}
+
+.sidebar-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.project-info, .recent-novels {
+    margin-bottom: 30px;
+}
+
+.project-info h3, .recent-novels h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #a0aec0;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.project-info p {
+    color: #e2e8f0;
+    font-size: 16px;
+}
+
+.novel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.novel-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.novel-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(4px);
+}
+
+.novel-item i {
+    color: #4299e1;
+    font-size: 14px;
+}
+
+.novel-item span {
+    font-size: 14px;
+    color: #e2e8f0;
+}
+
+/* 中间内容区域 */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    margin: 0 1px;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    border-bottom: 1px solid #e2e8f0;
+    background: white;
+}
+
+.content-header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.content-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: #4299e1;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #3182ce;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #e2e8f0;
+    color: #4a5568;
+}
+
+.btn-secondary:hover {
+    background: #cbd5e0;
+    transform: translateY(-1px);
+}
+
+.content-body {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    background: #f7fafc;
+}
+
+.novel-display {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    min-height: 100%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 小说内容包装器 */
+.novel-content-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.8;
+}
+
+/* 小说标题区域 */
+.novel-header {
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.novel-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.novel-meta {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 14px;
+    color: #718096;
+}
+
+/* 小说正文内容 */
+.novel-text-content {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #2d3748;
+}
+
+/* Markdown渲染样式 */
+.novel-text-content h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 30px 0 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #4299e1;
+}
+
+.novel-text-content h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 25px 0 15px 0;
+    padding-left: 10px;
+    border-left: 4px solid #4299e1;
+}
+
+.novel-text-content h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #4a5568;
+    margin: 20px 0 10px 0;
+}
+
+.novel-text-content p {
+    margin-bottom: 16px;
+    text-indent: 2em;
+    text-align: justify;
+}
+
+.novel-text-content blockquote {
+    border-left: 4px solid #e2e8f0;
+    padding-left: 16px;
+    margin: 16px 0;
+    color: #718096;
+    font-style: italic;
+}
+
+.novel-text-content code {
+    background: #f7fafc;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.novel-text-content pre {
+    background: #f7fafc;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 16px 0;
+}
+
+.novel-text-content pre code {
+    background: none;
+    padding: 0;
+}
+
+/* 章节分隔 */
+.novel-text-content hr {
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+    margin: 30px 0;
+}
+
+/* 强调文本 */
+.novel-text-content strong {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.novel-text-content em {
+    font-style: italic;
+    color: #4a5568;
+}
+
+/* 列表样式 */
+.novel-text-content ul, .novel-text-content ol {
+    margin: 16px 0;
+    padding-left: 24px;
+}
+
+.novel-text-content li {
+    margin-bottom: 8px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .novel-content-wrapper {
+        max-width: 100%;
+        padding: 0 10px;
+    }
+    
+    .novel-title {
+        font-size: 24px;
+    }
+    
+    .novel-text-content {
+        font-size: 15px;
+    }
+    
+    .novel-text-content h1 {
+        font-size: 20px;
+    }
+    
+    .novel-text-content h2 {
+        font-size: 18px;
+    }
+}
+
+/* 欢迎消息样式 */
+.welcome-message {
+    text-align: center;
+    padding: 60px 20px;
+    color: #4a5568;
+}
+
+.welcome-icon {
+    font-size: 48px;
+    color: #4299e1;
+    margin-bottom: 20px;
+}
+
+.welcome-message h2 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #2d3748;
+}
+
+.welcome-message p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.example-prompts {
+    margin-top: 40px;
+}
+
+.example-prompts h3 {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: #2d3748;
+}
+
+.prompt-examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+}
+
+.example-tag {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.example-tag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* 小说内容样式 */
+.novel-content {
+    line-height: 1.8;
+    font-size: 16px;
+    color: #2d3748;
+}
+
+.novel-content h1, .novel-content h2, .novel-content h3 {
+    margin: 30px 0 20px 0;
+    color: #1a202c;
+}
+
+.novel-content p {
+    margin-bottom: 20px;
+    text-indent: 2em;
+}
+
+.scene-divider {
+    text-align: center;
+    margin: 40px 0;
+    padding: 20px 0;
+    border-top: 2px solid #e2e8f0;
+    border-bottom: 2px solid #e2e8f0;
+    font-weight: 600;
+    color: #4a5568;
+    background: #f7fafc;
+}
+
+/* 右侧聊天面板 */
+.chat-panel {
+    width: 400px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.chat-header {
+    padding: 20px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f7fafc;
+}
+
+.chat-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chat-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #4a5568;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #48bb78;
+}
+
+.status-indicator.online {
+    background: #48bb78;
+    box-shadow: 0 0 0 2px rgba(72, 187, 120, 0.3);
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.message {
+    display: flex;
+    gap: 12px;
+    animation: fadeInUp 0.3s ease;
+}
+
+.message.user {
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.message.assistant .message-avatar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.message.user .message-avatar {
+    background: #4299e1;
+    color: white;
+}
+
+.message-content {
+    flex: 1;
+    max-width: 280px;
+}
+
+.message.user .message-content {
+    text-align: right;
+}
+
+.message-content p {
+    background: #f7fafc;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-bottom: 6px;
+    line-height: 1.5;
+    font-size: 14px;
+    color: #2d3748;
+}
+
+.message.user .message-content p {
+    background: #4299e1;
+    color: white;
+}
+
+.message-time {
+    font-size: 11px;
+    color: #a0aec0;
+}
+
+.chat-input-area {
+    padding: 20px;
+    border-top: 1px solid #e2e8f0;
+    background: #f7fafc;
+}
+
+.input-container {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+#chatInput {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s ease;
+    background: white;
+}
+
+#chatInput:focus {
+    border-color: #4299e1;
+}
+
+.send-btn {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.send-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.input-hints {
+    margin-top: 8px;
+    text-align: center;
+}
+
+.input-hints small {
+    color: #a0aec0;
+    font-size: 11px;
+}
+
+/* 加载动画 */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.loading-content {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e2e8f0;
+    border-top: 4px solid #4299e1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+.loading-content p {
+    color: #4a5568;
+    font-size: 16px;
+    margin: 0;
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .sidebar {
+        width: 240px;
+    }
+    
+    .chat-panel {
+        width: 350px;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+    }
+    
+    .chat-panel {
+        width: 100%;
+        height: 300px;
+    }
+    
+    .main-content {
+        flex: 1;
+        margin: 1px 0;
+    }
+}
+
+/* 步骤控制样式 */
+.step-controls-container {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.step-info h4 {
+    color: #2d3748;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.step-info p {
+    color: #718096;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.step-action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.step-action-buttons .step-btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.step-action-buttons .step-btn.primary {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    color: white;
+}
+
+.step-action-buttons .step-btn.primary:hover {
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+    transform: translateY(-1px);
+}
+
+.step-action-buttons .step-btn:not(.primary) {
+    background: #e2e8f0;
+    color: #4a5568;
+}
+
+.step-action-buttons .step-btn:not(.primary):hover {
+    background: #cbd5e0;
+    transform: translateY(-1px);
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
