@@ -9,7 +9,7 @@ requires = [
 packages = ["storytelling_agent"]
 
 [project]
-name = "moyun"
+name = "Moyun"
 version = "0.0.1"
 dependencies = [
     "requests==2.31.0",
