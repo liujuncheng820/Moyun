@@ -20,7 +20,7 @@ from typing import Dict, Any
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # 注释掉不存在的导入
-# from goat_storytelling_agent.optimized_storytelling_agent import OptimizedStoryAgent
+# from storytelling_agent.optimized_storytelling_agent import OptimizedStoryAgent
 from src.agents.storytelling_agent import StoryAgent
 # from context_manager import get_context_manager
 from src.utils.streaming_processor import StreamingProcessor, StreamingStatus

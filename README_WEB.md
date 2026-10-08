@@ -27,21 +27,22 @@
 - **Flask**：Web 框架
 - **Flask-SocketIO**：WebSocket 支持
 - **Python Threading**：异步任务处理
-- **GOAT Storytelling Agent**：AI 小说生成核心
+- **Moyun 故事生成引擎**：AI 小说生成核心
 
 ## 📁 项目结构
 
 ```
-GOAT-Storytelling-Agent-main/
-├── templates/
-│   └── index.html              # 主页面模板
-├── static/
-│   ├── style.css              # 样式文件
-│   └── script.js              # 前端交互逻辑
-├── goat_storytelling_agent/   # AI 生成器核心
-├── web_app.py                 # Flask 应用主文件
-├── requirements_web.txt       # Web 应用依赖
-└── README_WEB.md             # 本文档
+moyun/
+├── web/
+│   ├── templates/
+│   │   └── index.html              # 主页面模板
+│   ├── static/
+│   │   ├── style.css              # 样式文件
+│   │   └── script.js              # 前端交互逻辑
+│   └── web_app.py                 # Flask 应用主文件
+├── storytelling_agent/            # AI 生成器核心
+├── requirements.txt               # 项目依赖
+└── README_WEB.md                 # 本文档
 ```
 
 ## 🚀 快速开始
@@ -49,13 +50,13 @@ GOAT-Storytelling-Agent-main/
 ### 1. 安装依赖
 
 ```bash
-pip install -r requirements_web.txt
+pip install -r requirements.txt
 ```
 
 ### 2. 启动应用
 
 ```bash
-python web_app.py
+python web/web_app.py
 ```
 
 ### 3. 访问界面

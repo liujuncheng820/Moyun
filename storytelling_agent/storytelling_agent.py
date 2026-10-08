@@ -5,8 +5,8 @@ import json
 import requests
 import traceback
 
-from goat_storytelling_agent import utils
-from goat_storytelling_agent.plan import Plan
+from storytelling_agent import utils
+from storytelling_agent.plan import Plan
 
 
 SUPPORTED_BACKENDS = ["hf", "llama.cpp"]
@@ -142,7 +142,7 @@ class StoryAgent:
                 "GOAT-AI/GOAT-70B-Storytelling")
 
         if prompt_engine is None:
-            from goat_storytelling_agent import prompts
+            from storytelling_agent import prompts
             self.prompt_engine = prompts
         else:
             self.prompt_engine = prompt_engine

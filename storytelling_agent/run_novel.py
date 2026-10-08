@@ -9,7 +9,7 @@ import sys
 # 把当前项目加入 Python 路径，避免导入报错
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from goat_storytelling_agent.storytelling_agent import StoryAgent
+from storytelling_agent.storytelling_agent import StoryAgent
 
 # 1. 动态注入配置（无需手动改 config.py）
 os.environ["ENDPOINT"] = "http://localhost:8080/generate"   # 你的 OpenAI 代理地址

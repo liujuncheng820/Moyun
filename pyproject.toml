@@ -6,10 +6,10 @@ requires = [
 ]
 
 [tool.setuptools]
-packages = ["goat_storytelling_agent"]
+packages = ["storytelling_agent"]
 
 [project]
-name = "goat_storytelling_agent"
+name = "moyun"
 version = "0.0.1"
 dependencies = [
     "requests==2.31.0",

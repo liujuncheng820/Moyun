@@ -3,7 +3,7 @@
 ## 目录结构
 
 ```
-GOAT-Storytelling-Agent/
+moyun/
 ├── src/                    # 核心源代码
 │   ├── agents/            # 智能代理模块
 │   │   ├── storytelling_agent.py    # 主要故事生成代理
@@ -29,9 +29,6 @@ GOAT-Storytelling-Agent/
 │   ├── run_novel.py       # 小说生成示例
 │   ├── run_openai_proxy.py         # OpenAI代理示例
 │   └── run_optimized_demo.py       # 优化版演示
-├── docs/                  # 文档和配置
-│   ├── requirements.txt   # 核心依赖
-│   └── requirements_web.txt        # Web依赖
 └── images/                # 图片资源
 ```
 
@@ -52,9 +49,6 @@ GOAT-Storytelling-Agent/
 
 ### examples/ - 使用示例
 - 各种使用场景的示例代码和演示程序
-
-### docs/ - 文档
-- 项目文档和依赖配置文件
 
 ## 导入规范
 

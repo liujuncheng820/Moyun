@@ -5,7 +5,7 @@
 import os
 import time
 # 注释掉不存在的导入
-# from goat_storytelling_agent.optimized_storytelling_agent import OptimizedStoryAgent
+# from storytelling_agent.optimized_storytelling_agent import OptimizedStoryAgent
 from src.agents.refactored_agent import RefactoredStoryAgent
 
 

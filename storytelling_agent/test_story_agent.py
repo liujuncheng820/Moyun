@@ -1,5 +1,5 @@
-from goat_storytelling_agent.storytelling_agent import StoryAgent
-from goat_storytelling_agent import config
+from storytelling_agent.storytelling_agent import StoryAgent
+from storytelling_agent import config
 
 agent = StoryAgent(
     backend_uri=config.BACKEND_URI,

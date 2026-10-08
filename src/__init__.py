@@ -1,12 +1,12 @@
 """
-中文VibeWriting - 基于DeepSeek Reasoner的智能小说生成器
+Moyun - A multi-stage framework for long-form Chinese story generation.
 
-核心模块包，包含所有主要功能组件。
+Core package containing all principal components.
 """
 
 __version__ = "1.0.0"
-__author__ = "GOAT.AI"
-__description__ = "基于DeepSeek Reasoner的中文小说生成器"
+__author__ = "Moyun"
+__description__ = "Multi-stage Chinese story generation framework"
 
 # 导入核心组件
 from .agents.storytelling_agent import StoryAgent
